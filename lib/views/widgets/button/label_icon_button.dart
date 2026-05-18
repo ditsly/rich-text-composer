@@ -11,6 +11,11 @@ class LabelIconButton extends StatelessWidget {
   final String label;
   final String iconAsset;
   final String? packageName;
+  /// imail fork (2026-05-18): mirror the trailing icon when ambient
+  /// [Directionality] is `rtl`. Defaults to true since the canonical
+  /// use of this widget (the "Quick styles ›" trigger) carries a
+  /// trailing arrow-right glyph that must point LEFT in RTL.
+  final bool rtlMirrorIcon;
 
   const LabelIconButton({
     super.key,
@@ -18,10 +23,25 @@ class LabelIconButton extends StatelessWidget {
     required this.iconAsset,
     this.onTapAction,
     this.packageName,
+    this.rtlMirrorIcon = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    Widget icon = SvgPicture.asset(
+      iconAsset,
+      package: packageName,
+      fit: BoxFit.fill,
+    );
+
+    if (rtlMirrorIcon && Directionality.of(context) == TextDirection.rtl) {
+      icon = Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.diagonal3Values(-1.0, 1.0, 1.0),
+        child: icon,
+      );
+    }
+
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
@@ -43,11 +63,7 @@ class LabelIconButton extends StatelessWidget {
             LimitedBox(
               maxWidth: 28,
               maxHeight: 28,
-              child: SvgPicture.asset(
-                iconAsset,
-                package: packageName,
-                fit: BoxFit.fill,
-              ),
+              child: icon,
             ),
           ],
         ),

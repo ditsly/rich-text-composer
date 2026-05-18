@@ -27,12 +27,17 @@ class ListFormatDentStyle extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
+                // imail fork: indent + outdent glyphs are directional
+                // — the arrow points right (text moves right) in LTR
+                // and must mirror to point left in RTL. `rtlMirror:
+                // true` flips the SVG when Directionality is rtl.
                 child: FormatStyleButton(
                   key: const Key('format_indent_button'),
                   iconAsset: ImagePaths().icIndentFormat,
                   isSelected: richTextController.dentTypeApply.value == DentType.indent,
                   onTapAction: () => richTextController.selectDentTypeType(DentType.indent),
                   packageName: packageName,
+                  rtlMirror: true,
                 ),
               ),
               const CustomVerticalDivider(),
@@ -43,6 +48,7 @@ class ListFormatDentStyle extends StatelessWidget {
                   isSelected: richTextController.dentTypeApply.value == DentType.outdent,
                   onTapAction: () => richTextController.selectDentTypeType(DentType.outdent),
                   packageName: packageName,
+                  rtlMirror: true,
                 ),
               ),
             ],

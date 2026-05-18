@@ -72,12 +72,30 @@ class OptionContainerForTablet extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SvgPicture.asset(
-                                ImagePaths().icBack,
-                                fit: BoxFit.fill,
-                                width: 20,
-                                height: 20,
-                                package: packageName,
+                              // imail fork: back chevron is a
+                              // directional glyph — mirror in RTL so
+                              // it points the correct way (right →
+                              // back-to-previous in RTL languages).
+                              Builder(
+                                builder: (ctx) {
+                                  Widget chevron = SvgPicture.asset(
+                                    ImagePaths().icBack,
+                                    fit: BoxFit.fill,
+                                    width: 20,
+                                    height: 20,
+                                    package: packageName,
+                                  );
+                                  if (Directionality.of(ctx) ==
+                                      TextDirection.rtl) {
+                                    chevron = Transform(
+                                      alignment: Alignment.center,
+                                      transform: Matrix4.diagonal3Values(
+                                          -1.0, 1.0, 1.0),
+                                      child: chevron,
+                                    );
+                                  }
+                                  return chevron;
+                                },
                               ),
                               const SizedBox(width: 4),
                               Text(
