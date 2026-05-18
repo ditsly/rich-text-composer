@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rich_text_composer/views/commons/colors.dart';
 
 typedef OnLabelIconButtonButtonTapAction = Function();
 
@@ -28,10 +27,20 @@ class LabelIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // imail fork (2026-05-18): theme-aware label + icon tint via
+    // `onSurfaceVariant`. Was hardcoded `CommonColor.colorIconSelect`
+    // (#99A2AD) which on dark looked washed and on OLED could be
+    // unreadable. The SVG also gets the same tint via colorFilter so
+    // the trailing arrow stays legible.
+    final scheme = Theme.of(context).colorScheme;
     Widget icon = SvgPicture.asset(
       iconAsset,
       package: packageName,
       fit: BoxFit.fill,
+      colorFilter: ColorFilter.mode(
+        scheme.onSurfaceVariant,
+        BlendMode.srcIn,
+      ),
     );
 
     if (rtlMirrorIcon && Directionality.of(context) == TextDirection.rtl) {
@@ -54,8 +63,8 @@ class LabelIconButton extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: CommonColor.colorIconSelect,
+              style: TextStyle(
+                color: scheme.onSurfaceVariant,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),

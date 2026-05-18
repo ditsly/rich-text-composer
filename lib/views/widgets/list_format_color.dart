@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:rich_text_composer/rich_text_composer.dart';
-import 'package:rich_text_composer/views/commons/colors.dart';
 import 'package:rich_text_composer/views/commons/constants.dart';
 import 'package:rich_text_composer/views/commons/image_paths.dart';
 import 'package:rich_text_composer/views/commons/responsive_utils.dart';
@@ -58,13 +57,22 @@ class ListFormatColor extends StatelessWidget {
           ValueListenableBuilder(
               valueListenable: richTextController.selectedTextBackgroundColor,
               builder: (context, _, __) {
+                // imail fork (2026-05-18): when the chosen highlight
+                // color is `Colors.white` (effectively no-highlight),
+                // render the icon in the theme's `onSurfaceVariant`
+                // gray so the "A" swatch reads on every brightness.
+                // Was hardcoded `CommonColor.colorIconSelect` (#99A2AD)
+                // which on dark / OLED could be near-invisible.
+                final selectedBg = richTextController
+                    .selectedTextBackgroundColor.value;
+                final iconTint = selectedBg == Colors.white
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : selectedBg;
                 return Expanded(
                   child: FormatStyleButton(
                     key: const Key('background_color_button'),
                     iconAsset: ImagePaths().icBackgroundColor,
-                    iconColor: richTextController.selectedTextBackgroundColor.value == Colors.white
-                      ? CommonColor.colorIconSelect
-                      : richTextController.selectedTextBackgroundColor.value,
+                    iconColor: iconTint,
                     onTapAction: () {
                       if (ResponsiveUtils().isMobile(context)) {
                         _handleSelectBackgroundColorAction(context);

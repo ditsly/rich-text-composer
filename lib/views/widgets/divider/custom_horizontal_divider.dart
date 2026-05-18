@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:rich_text_composer/views/commons/colors.dart';
 
 class CustomHorizontalDivider extends StatelessWidget {
 
@@ -8,6 +7,11 @@ class CustomHorizontalDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(height: 1, color: CommonColor.colorBorderGray);
+    // imail fork (2026-05-18): theme-aware divider — was hardcoded
+    // `CommonColor.colorBorderGray` (#E4E4E4).
+    return Container(
+      height: 1,
+      color: Theme.of(context).colorScheme.outlineVariant,
+    );
   }
 }

@@ -1,7 +1,7 @@
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rich_text_composer/views/commons/colors.dart';
 
 typedef OnFormatStyleButtonTapAction = Function();
 
@@ -33,14 +33,31 @@ class FormatStyleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // imail fork (2026-05-18): theme-aware paints.
+    // * Default icon tint reads `onSurfaceVariant` (gray on light,
+    //   light-gray on dark) instead of the legacy static
+    //   `CommonColor.colorIconSelect = #99A2AD` which on dark looked
+    //   washed-out and on OLED could disappear.
+    // * Selected-state ICON tint moves to `primary` (the host app's
+    //   brand color via the ambient ThemeData) so the active button
+    //   reads as "engaged" — was the SAME gray as unselected,
+    //   removing the visual distinction.
+    // * Selected-state BG moves to `primary` with 12% opacity — a
+    //   light brand-tint wash that lifts on white AND on dark.
+    // Caller-supplied `iconColor` still wins when provided (used by
+    // ListFormatColor to paint the foreground/background-color swatch).
+    final scheme = Theme.of(context).colorScheme;
+    final Color resolvedIconColor;
+    if (iconColor != null) {
+      resolvedIconColor = iconColor!;
+    } else if (isSelected) {
+      resolvedIconColor = scheme.primary;
+    } else {
+      resolvedIconColor = scheme.onSurfaceVariant;
+    }
     Widget icon = SvgPicture.asset(
       iconAsset,
-      colorFilter: ColorFilter.mode(
-        isSelected
-          ? CommonColor.colorIconSelect
-          : iconColor ?? CommonColor.colorIconSelect,
-        BlendMode.srcIn
-      ),
+      colorFilter: ColorFilter.mode(resolvedIconColor, ui.BlendMode.srcIn),
       package: packageName,
       fit: BoxFit.contain,
     );
@@ -59,7 +76,7 @@ class FormatStyleButton extends StatelessWidget {
         onTap: onTapAction,
         child: Container(
           color: isSelected
-            ? CommonColor.colorBackgroundSelect
+            ? scheme.primary.withValues(alpha: 0.12)
             : Colors.transparent,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           height: double.infinity,

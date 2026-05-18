@@ -1,7 +1,8 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rich_text_composer/rich_text_composer.dart';
-import 'package:rich_text_composer/views/commons/colors.dart';
 import 'package:rich_text_composer/views/commons/constants.dart';
 import 'package:rich_text_composer/views/commons/image_paths.dart';
 import 'package:rich_text_composer/views/commons/logger.dart';
@@ -98,11 +99,15 @@ class OptionContainerForTablet extends StatelessWidget {
                                 },
                               ),
                               const SizedBox(width: 4),
+                              // imail fork: read theme primary so the
+                              // back-action text matches the host app's
+                              // brand color on dark / OLED instead of
+                              // the static `CommonColor.colorBlue`.
                               Text(
                                 titleBack!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
-                                  color: CommonColor.colorBlue))
+                                  color: Theme.of(context).colorScheme.primary))
                             ],
                           ),
                         ),
@@ -111,14 +116,18 @@ class OptionContainerForTablet extends StatelessWidget {
                   else
                     const SizedBox(width: 72),
                   Expanded(
+                    // imail fork: title text reads theme `onSurface`
+                    // so it stays legible on dark / OLED (was default
+                    // black via TextStyle inheritance).
                     child: Text(
                       title,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -138,6 +147,14 @@ class OptionContainerForTablet extends StatelessWidget {
                               width: 28,
                               height: 28,
                               package: packageName,
+                              // imail fork: tint to `onSurface` so
+                              // the dismiss glyph stays legible on
+                              // dark / OLED. Was relying on the SVG's
+                              // own fixed-color fill.
+                              colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.onSurface,
+                                ui.BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ),
