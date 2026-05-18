@@ -37,11 +37,29 @@ class ListFormatColor extends StatelessWidget {
           ValueListenableBuilder(
               valueListenable: richTextController.selectedTextColor,
               builder: (context, _, __) {
+                // imail fork (2026-05-18): when the chosen foreground
+                // text color is `Colors.black` (the controller's
+                // default initial value) AND the ambient brightness
+                // is dark, fall back to the theme's `onSurface` so
+                // the "A" glyph stays legible. Was hardcoded to
+                // `selectedTextColor.value` which on dark / OLED
+                // painted the icon BLACK against a near-black sheet
+                // → invisible. Mirror of the
+                // `selectedTextBackgroundColor == Colors.white` fix
+                // we already shipped for the paint-bucket below.
+                // If the user explicitly picks black on light mode,
+                // we honour it (Colors.black on white is fine).
+                final selectedFg = richTextController.selectedTextColor.value;
+                final isDark =
+                    Theme.of(context).brightness == Brightness.dark;
+                final iconTint = (selectedFg == Colors.black && isDark)
+                    ? Theme.of(context).colorScheme.onSurface
+                    : selectedFg;
                 return Expanded(
                   child: FormatStyleButton(
                     key: const Key('foreground_color_button'),
                     iconAsset: ImagePaths().icTextColor,
-                    iconColor: richTextController.selectedTextColor.value,
+                    iconColor: iconTint,
                     onTapAction: () {
                       if (ResponsiveUtils().isMobile(context)) {
                         _handleSelectForegroundColorAction(context);
@@ -57,15 +75,18 @@ class ListFormatColor extends StatelessWidget {
           ValueListenableBuilder(
               valueListenable: richTextController.selectedTextBackgroundColor,
               builder: (context, _, __) {
-                // imail fork (2026-05-18): when the chosen highlight
-                // color is `Colors.white` (effectively no-highlight),
-                // render the icon in the theme's `onSurfaceVariant`
-                // gray so the "A" swatch reads on every brightness.
-                // Was hardcoded `CommonColor.colorIconSelect` (#99A2AD)
-                // which on dark / OLED could be near-invisible.
+                // imail fork (2026-05-18): brightness-aware fallback.
+                // The controller defaults `selectedTextBackgroundColor`
+                // to `Colors.white` — visible against dark surfaces
+                // but invisible on light. So fall back to the theme's
+                // `onSurfaceVariant` gray ONLY on light mode. On dark
+                // mode the chosen white reads fine, so honour the
+                // user's choice.
                 final selectedBg = richTextController
                     .selectedTextBackgroundColor.value;
-                final iconTint = selectedBg == Colors.white
+                final isLight =
+                    Theme.of(context).brightness == Brightness.light;
+                final iconTint = (selectedBg == Colors.white && isLight)
                     ? Theme.of(context).colorScheme.onSurfaceVariant
                     : selectedBg;
                 return Expanded(
