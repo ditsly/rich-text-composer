@@ -26,6 +26,9 @@ class ImagePaths {
   String get icBulletOrder => _getImagePath('ic_bullet_order.svg');
   String get icNumberOrder => _getImagePath('ic_number_order.svg');
   String get icBack => _getImagePath('ic_back.svg');
+  // imail fork (2026-05-18): new text-direction toggle icons.
+  String get icTextDirectionLtr => _getImagePath('ic_text_direction_ltr.svg');
+  String get icTextDirectionRtl => _getImagePath('ic_text_direction_rtl.svg');
 
   String _getImagePath(String imageName) {
     return AssetsPaths.images + imageName;

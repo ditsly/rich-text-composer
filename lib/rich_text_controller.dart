@@ -24,6 +24,10 @@ class RichTextController {
   final selectedTextBackgroundColor = ValueNotifier<Color>(Colors.white);
   final dxRichTextButtonPosition = ValueNotifier<int>(35);
   final richTextToolbarNotifier = ValueNotifier<bool>(false);
+  // imail fork (2026-05-18): current paragraph text direction.
+  // Reflects the most-recently-tapped LTR / RTL button; the UI
+  // highlights the matching button.
+  final textDirectionTypeApply = ValueNotifier<TextDirectionType?>(null);
 
   Future<void> selectTextStyleType(SpecialStyleType styleType) async {
     log('RichTextController::selectTextStyleType:StyleType = $styleType');
@@ -71,6 +75,25 @@ class RichTextController {
   void selectDentTypeType(DentType dentType) {
     dentTypeApply.value = dentType;
     applyDentType();
+  }
+
+  /// imail fork (2026-05-18): set the current selection's paragraph
+  /// direction (LTR / RTL). The contenteditable spec exposes no
+  /// `execCommand('dir', …)` for direction, so we wrap the cursor in
+  /// a fresh `<div dir="…">` block via `insertHTML` — subsequent
+  /// typing happens inside that block in the chosen direction. Works
+  /// across Webkit (iOS, Android WebView) and Gecko (Firefox).
+  void selectTextDirection(TextDirectionType direction) {
+    textDirectionTypeApply.value = direction;
+    applyTextDirection();
+  }
+
+  Future<void> applyTextDirection() async {
+    final value = textDirectionTypeApply.value;
+    if (value == null) return;
+    // `<br>` keeps the block non-empty so the cursor lands inside it
+    // (Webkit collapses fully-empty contenteditable blocks).
+    await htmlEditorApi?.insertHtml('<div dir="${value.htmlDir}"><br></div>');
   }
 
   void selectOrderListType(OrderListType orderListType) {

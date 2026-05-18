@@ -129,3 +129,21 @@ enum OrderListType {
     }
   }
 }
+
+/// imail fork (2026-05-18): paragraph text-direction toggle.
+/// `ltr` = left-to-right (English / Latin), `rtl` = right-to-left
+/// (Arabic / Hebrew / Persian). Used by the new format-sheet
+/// direction-toggle buttons.
+enum TextDirectionType {
+  ltr,
+  rtl;
+
+  String get htmlDir {
+    switch (this) {
+      case TextDirectionType.ltr:
+        return 'ltr';
+      case TextDirectionType.rtl:
+        return 'rtl';
+    }
+  }
+}

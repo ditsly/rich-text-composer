@@ -5,6 +5,7 @@ import 'package:rich_text_composer/views/widgets/list_format_color.dart';
 import 'package:rich_text_composer/views/widgets/list_format_dent_style.dart';
 import 'package:rich_text_composer/views/widgets/list_format_order.dart';
 import 'package:rich_text_composer/views/widgets/list_format_special_style.dart';
+import 'package:rich_text_composer/views/widgets/list_format_text_direction.dart';
 import 'package:rich_text_composer/views/widgets/list_paragraph_align.dart';
 import 'package:rich_text_composer/views/widgets/responsive/responsive_widget.dart';
 
@@ -68,7 +69,15 @@ class RichTextOption extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(child: ListFormatOrder(richTextController: richTextController)),
                 ],
-              )
+              ),
+              const SizedBox(height: 8),
+              // imail fork (2026-05-18): LTR / RTL paragraph-direction
+              // toggle. On its own row so users on Arabic / Hebrew /
+              // Persian locales can pin a block's writing direction
+              // explicitly — auto-detection on the contenteditable is
+              // character-class based and can mis-detect mixed-
+              // language paragraphs.
+              ListFormatTextDirection(richTextController: richTextController),
             ],
           ),
           landscapeMobile: Column(
@@ -102,6 +111,10 @@ class RichTextOption extends StatelessWidget {
                   Expanded(child: ListFormatDentStyle(richTextController: richTextController)),
                   const SizedBox(width: 8),
                   Expanded(child: ListFormatOrder(richTextController: richTextController)),
+                  const SizedBox(width: 8),
+                  // imail fork (2026-05-18): LTR / RTL paragraph
+                  // direction toggle.
+                  Expanded(child: ListFormatTextDirection(richTextController: richTextController)),
                 ],
               ),
             ],
