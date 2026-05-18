@@ -8,6 +8,9 @@ class DialogUtils {
 
   factory DialogUtils() => _instance ??= DialogUtils._();
 
+  // imail fork patch (2026-05-18): `backgroundColor` reads the
+  // ambient theme's `colorScheme.surface` so the sheet + dialog
+  // theme-flip on dark / OLED. Was `Colors.white` hardcoded.
   Future showDialogBottomSheet(BuildContext context, Widget child) {
     return showModalBottomSheet(
       context: context,
@@ -16,7 +19,7 @@ class DialogUtils {
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16))),
       barrierColor: Colors.black38,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       isScrollControlled: true,
       useSafeArea: true,
@@ -37,16 +40,16 @@ class DialogUtils {
   ) {
     return showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (dialogContext) {
         return AlertDialog(
           contentPadding: EdgeInsets.zero,
           clipBehavior: Clip.antiAlias,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(dialogContext).colorScheme.surface,
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
           content: SizedBox(
             width: 448,
             height: 436,
-            child: builder.call(context),
+            child: builder.call(dialogContext),
           ),
         );
       },

@@ -38,9 +38,11 @@ class OptionContainerForTablet extends StatelessWidget {
         color: Colors.grey.shade500,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(
+        // imail fork patch: theme-aware surface so the tablet variant
+        // also flips on dark / OLED.
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.all(
             Radius.circular(16),
           ),
         ),

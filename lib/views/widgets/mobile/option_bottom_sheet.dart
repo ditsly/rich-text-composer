@@ -17,13 +17,20 @@ class OptionBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // imail fork patch (2026-05-18): swap the two hardcoded
+    // `Colors.white` paints + the close-button SVG tint for
+    // `Theme.of(context).colorScheme.surface` / `onSurface` so the
+    // sheet theme-flips on dark + OLED. Title text style also reads
+    // `onSurface` so it stays legible. Drop-in replacement: every
+    // existing call site keeps the same constructor signature.
+    final scheme = Theme.of(context).colorScheme;
     return SafeArea(
       left: ResponsiveUtils().isPortraitMobile(context),
       right: ResponsiveUtils().isPortraitMobile(context),
       top: ResponsiveUtils().isMobile(context),
       bottom: ResponsiveUtils().isMobile(context),
       child: Container(
-        color: Colors.white,
+        color: scheme.surface,
         constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height - 40),
         child: Column(
@@ -31,11 +38,11 @@ class OptionBottomSheet extends StatelessWidget {
           children: [
             Container(
               height: 52,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),),
-                color: Colors.white,
+                color: scheme.surface,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -50,13 +57,15 @@ class OptionBottomSheet extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
+                        color: scheme.onSurface,
                       ),
                     ),
                   ),
                   Material(
+                    color: Colors.transparent,
                     child: InkWell(
                       onTap: Navigator.of(context).pop,
                       customBorder: const CircleBorder(),
@@ -66,6 +75,10 @@ class OptionBottomSheet extends StatelessWidget {
                         width: 28,
                         height: 28,
                         package: packageName,
+                        colorFilter: ColorFilter.mode(
+                          scheme.onSurface,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),
