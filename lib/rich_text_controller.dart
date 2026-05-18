@@ -77,12 +77,15 @@ class RichTextController {
     applyDentType();
   }
 
-  /// imail fork (2026-05-18): set the current selection's paragraph
-  /// direction (LTR / RTL). The contenteditable spec exposes no
-  /// `execCommand('dir', …)` for direction, so we wrap the cursor in
-  /// a fresh `<div dir="…">` block via `insertHTML` — subsequent
-  /// typing happens inside that block in the chosen direction. Works
-  /// across Webkit (iOS, Android WebView) and Gecko (Firefox).
+  /// imail fork (2026-05-18): set the current paragraph's direction
+  /// (LTR / RTL). The contenteditable spec exposes no `execCommand`
+  /// for direction that works cross-browser (Firefox has `bidiLtr`
+  /// /`bidiRtl` but Webkit + Chromium do not), so we walk the
+  /// selection's anchor up to the nearest block-level ancestor and
+  /// set its `dir` attribute via JS injected through the public
+  /// `htmlEditorApi.webViewController.evaluateJavascript`.
+  /// Retroactively flips the existing block under the cursor — no
+  /// new empty block inserted.
   void selectTextDirection(TextDirectionType direction) {
     textDirectionTypeApply.value = direction;
     applyTextDirection();
@@ -91,9 +94,26 @@ class RichTextController {
   Future<void> applyTextDirection() async {
     final value = textDirectionTypeApply.value;
     if (value == null) return;
-    // `<br>` keeps the block non-empty so the cursor lands inside it
-    // (Webkit collapses fully-empty contenteditable blocks).
-    await htmlEditorApi?.insertHtml('<div dir="${value.htmlDir}"><br></div>');
+    final api = htmlEditorApi;
+    if (api == null) return;
+    final dir = value.htmlDir;
+    // Walk the selection's anchor up to the nearest block element
+    // and set `dir`. If nothing is selected (no focus yet), fall
+    // back to the editor root so a tap still pins direction for
+    // anything the user types next.
+    final script = '''(function(){
+  var BLOCK = {DIV:1,P:1,BLOCKQUOTE:1,PRE:1,H1:1,H2:1,H3:1,H4:1,H5:1,H6:1,LI:1,UL:1,OL:1,TD:1,TH:1,BODY:1};
+  var node = null;
+  var sel = window.getSelection ? window.getSelection() : null;
+  if (sel && sel.rangeCount > 0) {
+    node = sel.anchorNode;
+    if (node && node.nodeType !== 1) node = node.parentNode;
+    while (node && !BLOCK[node.tagName]) node = node.parentNode;
+  }
+  if (!node) node = document.getElementById('editor') || document.body;
+  if (node) node.setAttribute('dir', '$dir');
+})();''';
+    await api.webViewController.evaluateJavascript(source: script);
   }
 
   void selectOrderListType(OrderListType orderListType) {

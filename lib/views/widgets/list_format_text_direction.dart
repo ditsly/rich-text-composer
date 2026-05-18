@@ -23,10 +23,21 @@ class ListFormatTextDirection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // imail fork (2026-05-18): pre-light the matching button from
+    // the ambient `Directionality` when no explicit choice has been
+    // made yet — so on Arabic / Hebrew / Persian locales the RTL
+    // button reads as "engaged" by default (the host app's locale
+    // direction is the implicit starting state), and LTR reads as
+    // engaged on English / Latin locales. Once the user explicitly
+    // taps a button, `textDirectionTypeApply` wins and stays.
+    final ambient = Directionality.of(context) == TextDirection.rtl
+        ? TextDirectionType.rtl
+        : TextDirectionType.ltr;
     return BorderContainer(
       child: ValueListenableBuilder(
         valueListenable: richTextController.textDirectionTypeApply,
-        builder: (context, _, __) {
+        builder: (context, value, __) {
+          final selected = value ?? ambient;
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -34,8 +45,7 @@ class ListFormatTextDirection extends StatelessWidget {
                 child: FormatStyleButton(
                   key: const Key('format_text_direction_ltr_button'),
                   iconAsset: ImagePaths().icTextDirectionLtr,
-                  isSelected: richTextController.textDirectionTypeApply.value ==
-                      TextDirectionType.ltr,
+                  isSelected: selected == TextDirectionType.ltr,
                   onTapAction: () => richTextController
                       .selectTextDirection(TextDirectionType.ltr),
                   packageName: packageName,
@@ -46,8 +56,7 @@ class ListFormatTextDirection extends StatelessWidget {
                 child: FormatStyleButton(
                   key: const Key('format_text_direction_rtl_button'),
                   iconAsset: ImagePaths().icTextDirectionRtl,
-                  isSelected: richTextController.textDirectionTypeApply.value ==
-                      TextDirectionType.rtl,
+                  isSelected: selected == TextDirectionType.rtl,
                   onTapAction: () => richTextController
                       .selectTextDirection(TextDirectionType.rtl),
                   packageName: packageName,
